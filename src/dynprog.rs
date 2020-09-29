@@ -1,5 +1,3 @@
-use std::ops::{Index, IndexMut};
-
 pub struct Tableau<T> {
     row_size: usize,
     data: Vec<T>,
@@ -31,14 +29,14 @@ impl<T> Tableau<T> {
     }
 }
 
-impl<T> Index<usize> for Tableau<T> {
+impl<T> std::ops::Index<usize> for Tableau<T> {
     type Output = [T];
     fn index(&self, row: usize) -> &Self::Output {
         self.row(row)
     }
 }
 
-impl<T> IndexMut<usize> for Tableau<T> {
+impl<T> std::ops::IndexMut<usize> for Tableau<T> {
     fn index_mut(&mut self, row: usize) -> &mut Self::Output {
         self.row_mut(row)
     }

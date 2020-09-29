@@ -39,6 +39,30 @@ impl<'a, T: Ord> Permutations<'a, T> {
             }
         }
     }
+
+    pub fn previous(&mut self) -> bool {
+        if self.elements.len() < 2 {
+            return false;
+        }
+
+        let mut i = self.elements.len() - 1;
+        loop {
+            i -= 1;
+            if self.elements[i] > self.elements[i + 1] {
+                let mut k = self.elements.len() - 1;
+                while self.elements[i] <= self.elements[k] {
+                    k -= 1;
+                }
+                self.elements.swap(i, k);
+                self.elements[i + 1..].reverse();
+                return true;
+            }
+            if i == 0 {
+                self.elements.reverse();
+                return false;
+            }
+        }
+    }
 }
 
 #[cfg(test)]
@@ -73,5 +97,39 @@ mod tests {
         assert_eq!(p.get(), [3, 3, 2, 1]);
         assert!(!p.next());
         assert_eq!(p.get(), [1, 2, 3, 3]);
+    }
+
+    #[test]
+    fn test_previous_permutation() {
+        let mut nums = vec![3, 3, 2, 1];
+        let mut p = Permutations::new(&mut nums);
+        assert!(p.previous());
+        assert_eq!(p.get(), [3, 3, 1, 2]);
+        assert!(p.previous());
+        assert_eq!(p.get(), [3, 2, 3, 1]);
+        assert!(p.previous());
+        assert_eq!(p.get(), [3, 2, 1, 3]);
+        assert!(p.previous());
+        assert_eq!(p.get(), [3, 1, 3, 2]);
+        assert!(p.previous());
+        assert_eq!(p.get(), [3, 1, 2, 3]);
+        assert!(p.previous());
+        assert_eq!(p.get(), [2, 3, 3, 1]);
+        assert!(p.next());
+        assert_eq!(p.get(), [3, 1, 2, 3]);
+        assert!(p.previous());
+        assert_eq!(p.get(), [2, 3, 3, 1]);
+        assert!(p.previous());
+        assert_eq!(p.get(), [2, 3, 1, 3]);
+        assert!(p.previous());
+        assert_eq!(p.get(), [2, 1, 3, 3]);
+        assert!(p.previous());
+        assert_eq!(p.get(), [1, 3, 3, 2]);
+        assert!(p.previous());
+        assert_eq!(p.get(), [1, 3, 2, 3]);
+        assert!(p.previous());
+        assert_eq!(p.get(), [1, 2, 3, 3]);
+        assert!(!p.previous());
+        assert_eq!(p.get(), [3, 3, 2, 1]);
     }
 }

@@ -1,2 +1,2 @@
-pub mod dynprog;
+pub mod dp;
 pub mod slice;

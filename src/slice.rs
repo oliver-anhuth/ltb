@@ -1,3 +1,4 @@
+// Permutation of a mutable slice.
 pub struct Permutations<'a, T: Ord> {
     elements: &'a mut [T],
 }
@@ -63,6 +64,57 @@ impl<'a, T: Ord> Permutations<'a, T> {
             }
         }
     }
+}
+
+// Partition
+pub fn partition<T>(slice: &mut [T], pivot: T) -> (usize, usize)
+where
+    T: std::cmp::PartialOrd,
+{
+    unsafe {
+        let begin = slice.as_mut_ptr();
+        let end = begin.offset(slice.len() as isize);
+
+        let mut ptr = begin;
+        let mut eq_end = ptr;
+        let mut lt_end = ptr;
+
+        while ptr < end {
+            if *ptr < pivot {
+                std::ptr::swap(ptr, lt_end);
+                lt_end = lt_end.offset(1);
+            } else if *ptr == pivot {
+                std::ptr::swap(ptr, eq_end);
+                if lt_end > eq_end {
+                    std::ptr::swap(ptr, lt_end);
+                }
+                eq_end = eq_end.offset(1);
+                lt_end = lt_end.offset(1);
+            }
+            ptr = ptr.offset(1);
+        }
+
+        let start_eq_range = (lt_end as usize - eq_end as usize) / std::mem::size_of::<T>();
+        let start_gt_range = (lt_end as usize - begin as usize) / std::mem::size_of::<T>();
+
+        while eq_end > begin {
+            eq_end = eq_end.offset(-1);
+            lt_end = lt_end.offset(-1);
+            std::ptr::swap(eq_end, lt_end);
+        }
+
+        (start_eq_range, start_gt_range)
+    }
+}
+
+pub fn split_at_partitions<T>(slice: &mut [T], pivot: T) -> (&mut [T], &mut [T], &mut [T])
+where
+    T: std::cmp::PartialOrd,
+{
+    let (start_eq, start_gt) = partition(slice, pivot);
+    let (less_than, rest) = slice.split_at_mut(start_eq);
+    let (equal, greater_than) = rest.split_at_mut(start_gt - start_eq);
+    (less_than, equal, greater_than)
 }
 
 #[cfg(test)]
